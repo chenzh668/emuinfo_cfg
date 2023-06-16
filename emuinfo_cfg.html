@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<title>emu通信信息配置</title>
+</head>
+
+<style>
+    body{
+        margin-top: 140px;
+        width: 100%;
+    }
+    form{
+        width: 300px;
+        margin: 0px auto;
+        font-size: 18px;
+        font-weight: bold;
+        color:white;
+    }
+    .btndiv{
+        margin-top: 30px;
+    }
+    #sub{
+        margin-right: 170px;
+    }
+
+    
+
+</style>
+
+<body>
+        <form action="/cgi-bin/emuinfo.cgi" method="post">
+            <label for="ip1">1号LCD IP：</label>
+            <input type="text" name="ip1" id="ip1"><br>
+            <label for="ip2">2号LCD IP：</label>
+            <input type="text" name="ip2" id="ip2"><br>
+            <label for="ip3">3号LCD IP：</label>
+            <input type="text" name="ip3" id="ip3"><br>
+            <label for="ip4">4号LCD IP：</label>
+            <input type="text" name="ip4" id="ip4"><br>
+            <label for="ip5">5号LCD IP：</label>
+            <input type="text" name="ip5" id="ip5"><br>
+            <label for="ip6">6号LCD IP：</label>
+            <input type="text" name="ip6" id="ip6"><br>
+            <label for="plcIP">PLC IP： </label>
+            <input type="text" name="plcIP" id="plcIP"><br>
+            <div class="btndiv">
+                <input type="submit" id="sub" value="提交">
+                <input type="reset" onclick="loadXMLDoc()" id="ret" value="重置">
+            </div>
+        </form>
+    
+
+</body>
+
+<script>
+    var xmlhttp,txt;
+    var url="/cgi-bin/emuinfo.cgi";
+    loadXMLDoc();
+    function loadXMLDoc() {
+            var xmlhttp;
+            if (window.XMLHttpRequest) {
+                // IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
+                xmlhttp = new XMLHttpRequest();
+            }
+            else {
+                // IE6, IE5 浏览器执行代码
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    console.log(this.responseText);
+                    var myArr = JSON.parse(this.responseText);
+                    myFunction(myArr);
+                }
+            }
+            console.log(url);
+            xmlhttp.open("GET", url, true);
+            xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xmlhttp.send();
+        }
+     function myFunction(arr) {
+            document.getElementById('ip1').value = arr.lcd_server_ip1;
+            document.getElementById('ip2').value = arr.lcd_server_ip2;
+            document.getElementById('ip3').value = arr.lcd_server_ip3;
+            document.getElementById('ip4').value = arr.lcd_server_ip4;
+            document.getElementById('ip5').value = arr.lcd_server_ip5;
+            document.getElementById('ip6').value = arr.lcd_server_ip6;
+            document.getElementById('plcIP').value = arr.plc_server_ip;
+        }
+</script>
+</html>

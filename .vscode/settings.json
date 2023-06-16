@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "withbams.h": "c",
+        "stddef.h": "c",
+        "dlfcn.h": "c",
+        "ipc.h": "c",
+        "pthread.h": "c",
+        "share_type.h": "c",
+        "cjson.h": "c"
+    }
+}
