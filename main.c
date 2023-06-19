@@ -39,9 +39,9 @@ typedef struct {
     int flag_init_lcd;
 
 //BMS参数 用于lcd模块做判断对pcs停机
-	float Maximum_individual_voltage; //电池分系统 n 单体最高电压  
-	float Minimum_individual_voltage;//电池分系统 n 单体最低电压  
+	int Maximum_individual_voltage; //电池分系统 n 单体最高电压  
 ////
+	int Minimum_individual_voltage;//电池分系统 n 单体最低电压  
 //    char bams1_pcsid[8];
 //    char bams2_pcsid[8];
 
@@ -56,6 +56,7 @@ typedef struct {
 }pconf;
 
 pconf emu_conf;
+char *pMaximum_individual_voltage=NULL,*pMinimum_individual_voltage=NULL;
 
 
 
@@ -128,7 +129,7 @@ int Analysis_data(char post_data[],char (*data)[256],int *len){
 int config_assignment(char (*res_data)[256],int len){
     int i;
     char *pKey;
-    char *pValue;
+    char *pValue,Value1[15];
 
     for(i=0;i<len;i++){
         pKey= strtok(res_data[i], "=");
@@ -147,8 +148,15 @@ int config_assignment(char (*res_data)[256],int len){
             memcpy(emu_conf.lcd_server_ip[5], pValue, sizeof(emu_conf.lcd_server_ip[5])); 
         else if(strcmp(pKey,"plcIP")==0)
             memcpy(emu_conf.plc_server_ip, pValue, sizeof(emu_conf.plc_server_ip)); 
+        else if(strcmp(pKey,"balance_rate")==0)
+            emu_conf.balance_rate = atoi(pValue);
+        else if(strcmp(pKey,"single_mx_vol")==0){
+            emu_conf.Maximum_individual_voltage= (atof(pValue)*1000);
+        }
+        else if(strcmp(pKey,"single_mi_vol")==0){
+            emu_conf.Minimum_individual_voltage= (atof(pValue)*1000);
 
-
+        }
         // printf("<script>");
         //         printf("console.log(\"%s:%s  \");",pKey,pValue);
         // printf("</script>");
@@ -182,8 +190,22 @@ int Json_assignment(cJSON *pConfigJson){
             cJSON_ReplaceItemInObject(pConfigJson, "lcd_server_ip6", cJSON_CreateString(emu_conf.lcd_server_ip[5]));
         }
 
-         if(strcmp(cJSON_GetObjectItem(pConfigJson, "plc_server_ip")->valuestring,emu_conf.plc_server_ip)!=0){
+        if(strcmp(cJSON_GetObjectItem(pConfigJson, "plc_server_ip")->valuestring,emu_conf.plc_server_ip)!=0){
             cJSON_ReplaceItemInObject(pConfigJson, "plc_server_ip", cJSON_CreateString(emu_conf.plc_server_ip));
+        }
+
+        if(cJSON_GetObjectItem(pConfigJson, "balance_rate")->valueint != emu_conf.balance_rate){
+            cJSON_ReplaceItemInObject(pConfigJson, "balance_rate", cJSON_CreateNumber(emu_conf.balance_rate));
+        }
+        if(cJSON_GetObjectItem(pConfigJson, "Maximum_individual_voltage")->valueint != emu_conf.Maximum_individual_voltage){
+            cJSON_ReplaceItemInObject(pConfigJson, "Maximum_individual_voltage", cJSON_CreateNumber(emu_conf.Maximum_individual_voltage));
+        }
+
+        printf("<script>");
+            printf("console.log(\"写入的json: %d  %d\");",cJSON_GetObjectItem(pConfigJson, "Minimum_individual_voltage")->valueint,emu_conf.Minimum_individual_voltage);
+        printf("</script>");
+        if(cJSON_GetObjectItem(pConfigJson, "Minimum_individual_voltage")->valueint != emu_conf.Minimum_individual_voltage){
+            cJSON_ReplaceItemInObject(pConfigJson, "Minimum_individual_voltage", cJSON_CreateNumber(emu_conf.Minimum_individual_voltage));
         }
     return 0;
 }
@@ -230,17 +252,25 @@ int form_get_post()
             printf("console.log(\"html:post: %s\");",info);
         printf("</script>");
 
+        ret=post_read_config(conf);
+        cJSON *configJson = cJSON_Parse(conf);
+
         Analysis_data(info,res_data,&len);
 
         config_assignment(res_data,len);
 
-        ret=post_read_config(conf);
-        cJSON *configJson = cJSON_Parse(conf);
+       
       
         Json_assignment(configJson);
+        
+       
 
         char *cjson_str = cJSON_Print(configJson);
 
+        //  printf("<script>");
+        //     printf("console.log(\"写入: %s\");",cjson_str);
+        // printf("</script>");
+       
         ret = write_config(cjson_str);
         printf("<iframe id=\"ifr_con\" border=\"0\" marginwidth=\"0\" framespacing=\"2\" marginheight=\"0\" src=\"\" frameborder=\"0\" noresize=\"noresize\" width=\"800\" scrolling=\"no\" height=\"1000\" allowtransparency=\"allowtransparency\" vspale=\"0\"></iframe>");
         printf("<script>");

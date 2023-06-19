@@ -11,7 +11,7 @@
         width: 100%;
     }
     form{
-        width: 300px;
+        width: 315px;
         margin: 0px auto;
         font-size: 18px;
         font-weight: bold;
@@ -44,6 +44,12 @@
             <input type="text" name="ip6" id="ip6"><br>
             <label for="plcIP">PLC IP： </label>
             <input type="text" name="plcIP" id="plcIP"><br>
+            <label for="balance_rate">均衡: </label>
+            <input type="text" name="balance_rate" id="balance_rate"><br>
+            <label for="single_mx_vol">单体最高电压： </label>
+            <input type="text" name="single_mx_vol" id="single_mx_vol"><br>
+            <label for="single_mi_vol">单体最低电压： </label>
+            <input type="text" name="single_mi_vol" id="single_mi_vol"><br>
             <div class="btndiv">
                 <input type="submit" id="sub" value="提交">
                 <input type="reset" onclick="loadXMLDoc()" id="ret" value="重置">
@@ -87,6 +93,9 @@
             document.getElementById('ip5').value = arr.lcd_server_ip5;
             document.getElementById('ip6').value = arr.lcd_server_ip6;
             document.getElementById('plcIP').value = arr.plc_server_ip;
+            document.getElementById('balance_rate').value = arr.balance_rate;
+            document.getElementById('single_mx_vol').value = (arr.Maximum_individual_voltage)/1000;
+            document.getElementById('single_mi_vol').value = (arr.Minimum_individual_voltage)/1000;
         }
 </script>
 </html>
